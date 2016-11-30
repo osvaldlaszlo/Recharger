@@ -168,7 +168,7 @@ int CheckFailsafes() {
 
 // Check if we're ready to charge
 int CheckCharge() {
-	if ((Vout < 4000) || (Vout > CHARGE_LIMIT) || (Vbal > CHARGE_BALANCE_LIMIT) || (Vin < CHARGE_MIN_USB))
+	if ((Vout < 4000) || (Vout > CHARGE_LIMIT) || (Vbal > CHARGE_BALANCE_LIMIT) || ((Vout - Vbal) > CHARGE_BALANCE_LIMIT) || (Vin < CHARGE_MIN_USB))
 		return 0;
 	return 1;
 } // int CheckCharge()
@@ -294,7 +294,7 @@ void TimerInt() {
 			}
 		} else {
 			// Don't start charge if the battery is too high already
-			if (Vin > CHARGE_START)
+			if (Vout > CHARGE_START)
 				EmptyCycles = 0;
 			EmptyCycles++;
 		}
@@ -311,6 +311,7 @@ void TimerInt() {
 	if (!FlagNeedDc || (CurrBuck > 0) || (CurrBoost > 0) || (Vout < MIN_VOLTAGE)) {
 		SetDc(0);
 		CounterNoDc++;
+		FlagNeedDc = 0;
 	} else {
 		SetDc(1);
 		CounterNoDc = 0;
